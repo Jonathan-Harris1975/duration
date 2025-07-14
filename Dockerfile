@@ -1,21 +1,24 @@
-# Use official Node.js base image
-FROM node:20
+# Use official Node.js image
+FROM node:20-slim
 
-# Set working directory
-WORKDIR /app
-
-# Copy files
-COPY package*.json ./
-RUN npm install
-
-COPY . .
-
-# Install ffmpeg and ffprobe
+# Install ffprobe (via ffmpeg)
 RUN apt-get update && \
     apt-get install -y ffmpeg && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Expose port and start app
+# Create app directory
+WORKDIR /usr/src/app
+
+# Install app dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy app source code
+COPY . .
+
+# Expose the port
 EXPOSE 3000
-CMD ["node", "index.js"]
+
+# Start the app
+CMD ["npm", "start"]
